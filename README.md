@@ -8,6 +8,7 @@ Fun Places Sharing aiming to make a social hub to let people introduce to each o
 - Components construct like LEGO bricks
 - Integrated with Google map
 - Employ the full MERN stack - MongoDB, Express, React and Node.js
+- Functional programming plus hooks
 
 Have fun,
 
