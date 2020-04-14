@@ -11,9 +11,13 @@ router.get('/user/:uid', getPlacesByUserId);
 
 // placeController is the module name of place-controller.js - a naming convention
 const placeController = require('../controllers/places-controller');
+
 // the '/' is a must to be appended on the '/api/places' in app.js, furthermore
 // if it's a Dynamic Route Segment, then we need append a semicolon :, i.e. '/:'
 router.get('/:pid', placeController.getPlaceById);
 router.get('/user/:uid', placeController.getPlacesByUserId);
+router.post('/', placeController.createPlace);
+router.patch('/:pid', placeController.updatePlace);
+router.delete('/:pid', placeController.deletePlace);
 
 module.exports = router;

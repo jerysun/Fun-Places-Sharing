@@ -1,4 +1,5 @@
 const HttpError = require('../models/http-error');
+const uuid = require('uuid/v4');
 
 const DUMMY_PLACES = [
   {
@@ -10,9 +11,9 @@ const DUMMY_PLACES = [
     address: '20 W 34th St, New York, NY 10001',
     location: {
       lat: 40.7484405,
-      lng: -73.9878584
+      lng: -73.9878584,
     },
-    creator: 'u2'
+    creator: 'u2',
   },
   {
     id: 'p2',
@@ -23,10 +24,10 @@ const DUMMY_PLACES = [
     address: '20 W 34th St, New York, NY 10001',
     location: {
       lat: 40.7484405,
-      lng: -73.9878584
+      lng: -73.9878584,
     },
-    creator: 'u2'
-  }
+    creator: 'u2',
+  },
 ];
 
 const getPlaceById = (req, res, next) => {
@@ -51,5 +52,47 @@ const getPlacesByUserId = (req, res, next) => {
   return res.json({ places: places });
 };
 
+const createPlace = (req, res, next) => {
+  // object destructuring syntax in modern JS
+  const { title, description, address, coordinates, creator } = req.body;
+  const createdPlace = {
+    id: uuid(),
+    title: title,
+    description: description,
+    address: address,
+    location: coordinates,
+    creator: creator,
+  };
+  DUMMY_PLACES.push(createdPlace); // TODO - save it to MongoDB
+
+  res.status(201).json({ place: createdPlace });
+};
+
+const updatePlace = (req, res, next) => {
+  const { title, description } = req.body;
+  const placeId = req.params.pid;
+
+  const updatedPlace = { ...DUMMY_PLACES.find((p) => p.id === placeId) };
+  const placeIndex = DUMMY_PLACES.findIndex((p) => p.id === placeId);
+  updatedPlace.title = title;
+  updatedPlace.description = description;
+
+  DUMMY_PLACES[placeIndex] = updatedPlace;
+  res.status(200).json({ place: updatedPlace });
+};
+
+const deletePlace = (req, res, next) => {
+  const index = DUMMY_PLACES.findIndex((p) => p.id === req.params.id);
+  if (index === -1) {
+    throw new HttpError('The place with the provided ID does not exist.', 404);
+  }
+
+  DUMMY_PLACES.splice(index, 1);
+  res.status(204);
+};
+
 exports.getPlaceById = getPlaceById;
 exports.getPlacesByUserId = getPlacesByUserId;
+exports.createPlace = createPlace;
+exports.updatePlace = updatePlace;
+exports.deletePlace = deletePlace;
