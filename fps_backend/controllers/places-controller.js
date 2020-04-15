@@ -1,7 +1,7 @@
 const HttpError = require('../models/http-error');
 const uuid = require('uuid/v4');
 
-const DUMMY_PLACES = [
+let DUMMY_PLACES = [
   {
     id: 'p1',
     title: 'Empire State Building',
@@ -82,13 +82,17 @@ const updatePlace = (req, res, next) => {
 };
 
 const deletePlace = (req, res, next) => {
-  const index = DUMMY_PLACES.findIndex((p) => p.id === req.params.id);
+  DUMMY_PLACES = DUMMY_PLACES.filter(p => p.id !== req.params.pid);
+
+  /*
+  const index = DUMMY_PLACES.findIndex((p) => p.id === req.params.pid);
   if (index === -1) {
     throw new HttpError('The place with the provided ID does not exist.', 404);
   }
-
   DUMMY_PLACES.splice(index, 1);
-  res.status(204);
+  */
+
+  res.status(204).json();
 };
 
 exports.getPlaceById = getPlaceById;
