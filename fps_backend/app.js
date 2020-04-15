@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const placeRoutes = require('./routes/places-routes');
+const userRoutes = require('./routes/users-routes');
 const HttpError = require('./models/http-error');
 
 const app = express();
@@ -12,6 +13,7 @@ app.use(bodyParser.json());
 // then it is appended by the '/' in places-routes.js
 // the c# equivalent is the attr [Route("api/places")]
 app.use('/api/places', placeRoutes); // as a middleware
+app.use('/api/users', userRoutes);
 
 app.use((req, res, next) => {
   throw new HttpError('Could not find this route.', 404);
