@@ -1,6 +1,7 @@
 const express = require('express');
-const router = express.Router();
+const { check } = require('express-validator');
 
+const router = express.Router();
 // They are OK too, but we need the controller name as the namespace
 // for the neatness and readability if more controllers are involved
 /*
@@ -16,8 +17,23 @@ const placeController = require('../controllers/places-controller');
 // if it's a Dynamic Route Segment, then we need append a semicolon :, i.e. '/:'
 router.get('/:pid', placeController.getPlaceById);
 router.get('/user/:uid', placeController.getPlacesByUserId);
-router.post('/', placeController.createPlace);
-router.patch('/:pid', placeController.updatePlace);
+router.post(
+  '/',
+  [
+    check('title').not().isEmpty(),
+    check('description').isLength({ min: 5 }),
+    check('address').not().isEmpty(),
+  ],
+  placeController.createPlace
+);
+router.patch(
+  '/:pid',
+  [
+    check('title').not().isEmpty(),
+    check('description').isLength({ min: 5 })
+  ],
+  placeController.updatePlace
+);
 router.delete('/:pid', placeController.deletePlace);
 
 module.exports = router;
