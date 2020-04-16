@@ -1,6 +1,8 @@
 const { validationResult } = require('express-validator');
-const HttpError = require('../models/http-error');
 const uuid = require('uuid/v4');
+
+const HttpError = require('../models/http-error');
+const getCoordsForAddress = require('../util/location');
 
 let DUMMY_PLACES = [
   {
@@ -53,14 +55,22 @@ const getPlacesByUserId = (req, res, next) => {
   return res.json({ places: places });
 };
 
-const createPlace = (req, res, next) => {
+const createPlace = async(req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new HttpError('Invalid inputs passed, please check your data.', 422);
+    return next(new HttpError('Invalid inputs passed, please check your data.', 422));
   }
 
   // object destructuring syntax in modern JS
-  const { title, description, address, coordinates, creator } = req.body;
+  const { title, description, address, creator } = req.body;
+  let coordinates = {};
+
+  try {
+    coordinates = await getCoordsForAddress(address);
+  } catch(error) {
+    return next(error);
+  }
+
   const createdPlace = {
     id: uuid(),
     title: title,
@@ -71,7 +81,7 @@ const createPlace = (req, res, next) => {
   };
   DUMMY_PLACES.push(createdPlace); // TODO - save it to MongoDB
 
-  res.status(201).json({ place: createdPlace });
+  return res.status(201).json({ place: createdPlace });
 };
 
 const updatePlace = (req, res, next) => {
@@ -93,7 +103,6 @@ const updatePlace = (req, res, next) => {
 };
 
 const deletePlace = (req, res, next) => {
-
   /*
   const index = DUMMY_PLACES.findIndex((p) => p.id === req.params.pid);
   if (index === -1) {
