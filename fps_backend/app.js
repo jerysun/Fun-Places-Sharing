@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const placeRoutes = require('./routes/places-routes');
 const userRoutes = require('./routes/users-routes');
@@ -29,4 +30,11 @@ app.use((err, req, res, next) => {
   return res.json({ message: err.message || 'An unknown error occurred!' });
 });
 
-app.listen(5000);
+// places is the DB name, if it exists just open it otherwise crete then open it
+mongoose.connect('mongodb+srv://jerry:kgXYke6a1tR6vFzH@cluster0-hiwha.mongodb.net/places?retryWrites=true&w=majority')
+        .then(() => {
+          app.listen(5000);
+        })
+        .catch(err => {
+          console.error(err);
+        });
