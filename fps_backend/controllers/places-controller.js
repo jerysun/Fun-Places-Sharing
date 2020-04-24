@@ -144,28 +144,56 @@ const updatePlace = async(req, res, next) => {
 const deletePlace = async(req, res, next) => {
   const placeId = req.params.pid;
 
-  await Place.findByIdAndDelete(placeId, (err, result) => {
-    if (err) {
-      return next(new HttpError('Something went wrong, could not delete place', 500));
-    }
-    return res.status(200).json({ message: `${result.title} is deleted.` });
-  });
-
-  /*
   let place;
   try {
-    place = await Place.findById(placeId);
+    // populate() makes the creator property in place object grow to a User
+    // object, we call it subdocument, refer to this in placeSchema:
+    // creator: {type: mongoose.Types.ObjectId, required: true, ref: 'User'}
+    place = await Place.findById(placeId).populate('creator');
   } catch (err) {
-    return next(new HttpError('Something went wrong, could not delete place', 500));
+    console.error(err);
+    return next(new HttpError('Something went wrong during finding the place', 500));
   }
 
-  try {
-    await place.remove();
-    return res.status(204);
-  } catch (err) {
-    return next(new HttpError('Something went wrong, could not delete place, please try it again later', 500));
+  if (!place) {
+    return next(new HttpError('Could not find place for the provided id', 404));
   }
-  */
+
+  let sess;
+  try {
+    sess = await mongoose.startSession();
+    sess.startTransaction();
+    await place.remove({ session: sess });
+    place.creator.places.pull(place);// Mongoose converts place to an ObjectId automatically; pull is opposite to push
+    await place.creator.save({ session: sess });
+    await sess.commitTransaction();
+    return res.status(200).json({ message: `${placeId} is deleted!` });
+  } catch (err) {
+    return next(new HttpError('Something went wrong, could not delete place', 500));
+  } finally {
+    sess.endSession();
+  }
+
+  /* let deletedPlace;
+  await Place.findByIdAndDelete(placeId, (err, result) => {
+    if (err) {
+      return next(
+        new HttpError('Something went wrong, could not delete place', 500)
+      );
+    }
+    deletedPlace = result;
+  });
+
+  try {
+    const index = user.places.findIndex((oid) => oid.toString() === placeId);
+    if (index !== -1) {
+      user.places.splice(index, 1);
+      await user.save();
+    }
+    return res.status(200).json({ message: `${deletedPlace.id} is deleted!` });
+  } catch (err) {
+    return next(new HttpError('Deleting operation failed, please try it again.'));
+  } */
 };
 
 exports.getPlaceById = getPlaceById;
