@@ -1,8 +1,10 @@
+const mongoose = require('mongoose');
 const { validationResult } = require('express-validator');
 
 const HttpError = require('../models/http-error');
 const getCoordsForAddress = require('../util/location');
 const Place = require('../models/place');
+const User = require('../models/user');
 
 /*
 let DUMMY_PLACES = [
@@ -79,11 +81,38 @@ const createPlace = async(req, res, next) => {
     creator: creator
   });
 
+  let user;
   try {
-    const result = await createdPlace.save();
+    user = await User.findById(creator);
+  } catch(err) {
+    // console.error(user);
+    return next(new HttpError('Could not find user for the provided id', 404));
+  }
+
+  let sess;
+  try {
+    sess = await mongoose.startSession();
+    sess.startTransaction();
+    const result = await createdPlace.save({ session: sess });
+
+    // Actually mongoose grabs the createdPlace id and add it to places property,
+    // this trick is attributed to the ref property in model file, ref is FK,
+    // ORM guys like EF(Entity Framework) does the same: map an id to an object,
+    // vice versa.
+    user.places.push(createdPlace);
+    await user.save({ session: sess });
+
+    // if only if this operation succeeds, all data will be stored in DB, otherwise
+    // all relevant data in DB will be rolled back to the status before
+    // sess.startTransaction();
+    await sess.commitTransaction();
+
     return res.status(201).json({ place: result.toObject({ getters: true }) });
   } catch (err) {
-    return next(new HttpError('Creating place failed, please try it again.', 500));
+    console.error(err);
+    return next(new HttpError('Creating place failed, sooo please try it again.', 500));
+  } finally {
+    sess.endSession();
   }
 };
 

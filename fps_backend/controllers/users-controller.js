@@ -5,7 +5,8 @@ const User = require('../models/user');
 
 const getUsers = async(req, res, next) => {
   try {
-    const users = await User.find();
+    // return all properties but password - exclude it!
+    const users = await User.find({}, '-password');
     if (users.length === 0) {
       return new HttpError('There is no user yet.', 202);
     }
@@ -23,7 +24,7 @@ const signup = async(req, res, next) => {
 
   const { name, email, password } = req.body;
   const image = 'https://i.epochtimes.com/assets/uploads/2020/04/download-48-600x400.jpg';
-  const places = '5e9f73e08021fe4c040f1a3c'; // TODO, here is sole a placeholder
+  const places = []; // TODO, here is sole a placeholder
 
   let existingUser;
   try {
@@ -51,17 +52,17 @@ const signup = async(req, res, next) => {
   }
 };
 
-const login = (req, res, next) => {
+const login = async(req, res, next) => {
   const { email, password } = req.body;
 
   try {
-    const identifiedUser = User.find({ email: email, password: password });
-    if (!identifiedUser) {
+    const identifiedUser = await User.findOne({ email: email });
+    if (!identifiedUser || identifiedUser.password !== password) {
       return next(new HttpError('Could not identify user, credentials seem to be wrong.', 401));
     }
     return res.status(200).json({ message: 'Logged in!' });
   } catch(err) {
-    return next(new HttpError('Could not identify user, credentials seem to be wrong.', 401));
+    return next(new HttpError('Something went wrong, please try it again later.', 401));
   }
 };
 
