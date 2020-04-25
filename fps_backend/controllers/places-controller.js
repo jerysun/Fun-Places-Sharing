@@ -6,24 +6,6 @@ const getCoordsForAddress = require('../util/location');
 const Place = require('../models/place');
 const User = require('../models/user');
 
-/*
-let DUMMY_PLACES = [
-  {
-    id: 'p1',
-    title: 'Empire State Building',
-    description: 'One of the most famous sky scrapers in the world!',
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/NYC_Empire_State_Building.jpg/640px-NYC_Empire_State_Building.jpg',
-    address: '20 W 34th St, New York, NY 10001',
-    location: {
-      lat: 40.7484405,
-      lng: -73.9878584,
-    },
-    creator: 'u2',
-  }
-];
-*/
-
 const getPlaceById = async(req, res, next) => {
   const placeId = req.params.pid; // {pid: 'p1'}
 
@@ -39,7 +21,7 @@ const getPlaceById = async(req, res, next) => {
   }
 };
 
-const getPlacesByUserId = async(req, res, next) => {
+/* const getPlacesByUserId = async(req, res, next) => {
   const userId = req.params.uid;
 
   try {
@@ -50,6 +32,21 @@ const getPlacesByUserId = async(req, res, next) => {
 
     return res.status(200).json({ places: places.map(p => p.toObject({ getters: true })) });
   } catch (err) {
+    return next(new HttpError('Something went wrong, please try it again later', 500));
+  }
+}; */
+
+const getPlacesByUserId = async(req, res, next) => {
+  const userId = req.params.uid;
+
+  try {
+    const userWithPlaces = await User.findById(userId).populate('places');
+    if (!userWithPlaces) {
+      return next(new HttpError('This user does not exist', 404));
+    }
+    return res.status(200).json({ places: userWithPlaces.places.map(p => p.toObject({ getters: true })) });
+  } catch (err) {
+    console.error(`err: ${err}`);
     return next(new HttpError('Something went wrong, please try it again later', 500));
   }
 };
