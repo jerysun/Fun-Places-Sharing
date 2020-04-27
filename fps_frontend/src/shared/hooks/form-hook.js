@@ -38,6 +38,7 @@ export const useForm = (initialInputs, initialFormValidity) => {
     isValid: initialFormValidity // whether the overall form is valid
   });
 
+  // To test the validty in a simple way: e.g. empty? length? email format?
   const inputHandler = useCallback((id, value, isValid) => {
     dispatch({
       type: 'INPUT_CHANGE',
@@ -47,6 +48,7 @@ export const useForm = (initialInputs, initialFormValidity) => {
     });
   }, []);
 
+  // To get the data/value from the components in the form
   const setFormData = useCallback((inputData, formValidity) => {
     dispatch({
       type: 'SET_DATA',

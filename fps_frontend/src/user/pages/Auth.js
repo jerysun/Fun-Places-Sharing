@@ -34,7 +34,7 @@ const Auth = () => {
     // Actually, ONE form TWO modes!
     if (!isLoginMode) {
       // Data binding. RETAIN those relevant values from SIGNUP mode after switching
-      setFormData(
+      setFormData( // To become the Login mode, need to do:
         {
           ...formState.inputs,
           name: undefined
@@ -43,7 +43,7 @@ const Auth = () => {
       );
     } else {
       // the formState validaty is definitely false because LOGIN -> SIGNUP mode, there lacks Name <Input />
-      setFormData({
+      setFormData({ // To back to Signup mode, need to do:
         ...formState.inputs,
         name: {
           value: '',
@@ -55,11 +55,34 @@ const Auth = () => {
     setIsLoginMode((prevMode) => !prevMode);
   };
 
-  const authSubmitHandler = (event) => {
+  const authSubmitHandler = async (event) => {
     event.preventDefault();
-    console.log(formState.inputs);
-    //TODO: the backend logic; send HttpRequest; recive the HttpResponse
-    auth.login();
+    // console.log(formState.inputs);
+
+    if (isLoginMode) {
+      // TODO
+    } else {
+      try {
+        const response = await fetch('http://localhost:5000/api/users/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: formState.inputs.name.value,
+            email: formState.inputs.email.value,
+            password: formState.inputs.password.value,
+          }),
+        });
+
+        const responseData = await response.json();
+        console.log(responseData);
+
+        auth.login(); // implemented in app.js
+      } catch (err) {
+        console.error(err);
+      }
+    }
   };
 
   return (

@@ -10,6 +10,26 @@ const app = express();
 
 app.use(bodyParser.json());
 
+app.use((req, res, next) => {
+  // '*' means we instruct browsers to allow all other sites/domains to access
+  // our resource, but the safer measure is to set some specific domains, e.g.
+  // 'localhost:3000', but don't make such a fuss, it's OK. Even if you set
+  // these limitations, it's only effective to browsers, others like POSTMAN
+  // never care about these headers :-)
+  res.setHeader('Access-Control-Allow-Origin', '*');
+
+  // This controls which headers incoming request may have so that they are
+  // handled. The second argument shows we set green light to these three, the
+  // first two and the 4th are normally set automatically, but the 3rd and 5th
+  // headers are not automatically set by the browsers.
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+
+  // This controls which HTTP methods may be used on the frontend or may be
+  // attached to incoming requests.
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
+  next();
+});
+
 // a filter - only those that start with it are valid
 // then it is appended by the '/' in places-routes.js
 // the c# equivalent is the attr [Route("api/places")]
@@ -31,7 +51,7 @@ app.use((err, req, res, next) => {
 });
 
 // places is the DB name, if it exists just open it otherwise crete then open it
-mongoose.connect('mongodb+srv://jerry:kgXYke6a1tR6vFzH@cluster0-hiwha.mongodb.net/places?retryWrites=true&w=majority')
+mongoose.connect('mongodb+srv://jerry:kgXYke6a1tR6vFzH@cluster0-hiwha.mongodb.net/funplaces?retryWrites=true&w=majority')
         .then(() => {
           app.listen(5000);
         })
