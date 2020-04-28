@@ -18,7 +18,7 @@ const Auth = () => {
   const auth = useContext(AuthContext);
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState();
+  const [error, setError] = useState(); // the simplification of useState(null);
 
   const [formState, inputHandler, setFormData] = useForm(
     {
@@ -61,13 +61,36 @@ const Auth = () => {
 
   const authSubmitHandler = async (event) => {
     event.preventDefault();
-    // console.log(formState.inputs);
+    setIsLoading(true);
 
+    // The default is true at the beginning unless the login is successful, then
+    // loginMode becomes false whilst login becomes true by calling auth.login()
     if (isLoginMode) {
-      // TODO
+      try {
+        const response = await fetch('http://localhost:5000/api/users/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: formState.inputs.email.value,
+            password: formState.inputs.password.value
+          })
+        });
+
+        const responseData = await response.json();
+        if(!response.ok) {
+          throw new Error(responseData.message);
+        }
+
+        auth.login(); // implemented in app.js
+      } catch (err) {
+        setError(err.message || 'Something went wrong with login, please try it again later.');
+      } finally {
+        setIsLoading(false);
+      }
     } else {
       try {
-        setIsLoading(true);
         const response = await fetch('http://localhost:5000/api/users/signup', {
           method: 'POST',
           headers: {
@@ -76,20 +99,19 @@ const Auth = () => {
           body: JSON.stringify({
             name: formState.inputs.name.value,
             email: formState.inputs.email.value,
-            password: formState.inputs.password.value,
-          }),
+            password: formState.inputs.password.value
+          })
         });
 
         const responseData = await response.json();
         if (!response.ok) {
           throw new Error(responseData.message);
         }
-        console.log(responseData);
+        // console.log(responseData);
 
         auth.login(); // implemented in app.js
       } catch (err) {
-        console.error(err);
-        setError(err.message || 'Something went wrong with signup, please try it again later');
+        setError(err.message || 'Something went wrong with signup, please try it again later.');
       } finally {
         setIsLoading(false);
       }
