@@ -41,7 +41,7 @@ export const useHttpClient = () => {
 
   // called just before component unmount
   useEffect(() => {
-    reutrn (() => activeHttpRequests.current.forEach(abortCtrl => abortCtrl.abort()) );
+    return () => activeHttpRequests.current.forEach(abortCtrl => abortCtrl.abort());
   }, []);
 
   return { isLoading, error, sendRequest, clearError };
