@@ -107,7 +107,7 @@ const createPlace = async(req, res, next) => {
     return res.status(201).json({ place: result.toObject({ getters: true }) });
   } catch (err) {
     console.error(err);
-    return next(new HttpError('Creating place failed, sooo please try it again.', 500));
+    return next(new HttpError('Creating place failed, please try it again.', 500));
   } finally {
     sess.endSession();
   }

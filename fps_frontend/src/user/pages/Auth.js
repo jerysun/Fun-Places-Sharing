@@ -11,14 +11,14 @@ import {
   VALIDATOR_REQUIRE,
 } from '../../shared/util/validators';
 import { useForm } from '../../shared/hooks/form-hook';
+import { useHttpClient } from '../../shared/hooks/http-hook';
 import { AuthContext } from '../../shared/context/auth-context';
 import './Auth.css';
 
 const Auth = () => {
   const auth = useContext(AuthContext);
   const [isLoginMode, setIsLoginMode] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(); // the simplification of useState(null);
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
   const [formState, inputHandler, setFormData] = useForm(
     {
@@ -61,68 +61,45 @@ const Auth = () => {
 
   const authSubmitHandler = async (event) => {
     event.preventDefault();
-    setIsLoading(true);
 
     // The default is true at the beginning unless the login is successful, then
     // loginMode becomes false whilst login becomes true by calling auth.login()
     if (isLoginMode) {
       try {
-        const response = await fetch('http://localhost:5000/api/users/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
+        const responseData = await sendRequest(
+          'http://localhost:5000/api/users/login',
+          'POST',
+          JSON.stringify({
             email: formState.inputs.email.value,
-            password: formState.inputs.password.value
-          })
-        });
-
-        const responseData = await response.json();
-        if(!response.ok) {
-          throw new Error(responseData.message);
-        }
-
-        auth.login(); // implemented in app.js
-      } catch (err) {
-        setError(err.message || 'Something went wrong with login, please try it again later.');
-      } finally {
-        setIsLoading(false);
-      }
+            password: formState.inputs.password.value,
+          }),
+          {
+            'Content-Type': 'application/json',
+          }
+        );
+        auth.login(responseData.user.id); // implemented in app.js
+      } catch (err) {}
     } else {
       try {
-        const response = await fetch('http://localhost:5000/api/users/signup', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
+        const responseData = await sendRequest('http://localhost:5000/api/users/signup',
+          'POST',
+          JSON.stringify({
             name: formState.inputs.name.value,
             email: formState.inputs.email.value,
-            password: formState.inputs.password.value
-          })
-        });
-
-        const responseData = await response.json();
-        if (!response.ok) {
-          throw new Error(responseData.message);
-        }
-        // console.log(responseData);
-
-        auth.login(); // implemented in app.js
-      } catch (err) {
-        setError(err.message || 'Something went wrong with signup, please try it again later.');
-      } finally {
-        setIsLoading(false);
-      }
+            password: formState.inputs.password.value,
+          }),
+          {
+            'Content-Type': 'application/json',
+          }
+        );
+        auth.login(responseData.user.id); // implemented in app.js
+      } catch (err) {}
     }
   };
 
-  const errorHandler = () => setError(null);
-
   return (
     <React.Fragment>
-      <ErrorModal error={error} onClear={errorHandler} />
+      <ErrorModal error={error} onClear={clearError} />
       <Card className='authentication'>
         {isLoading && <LoadingSpinner asOverlay />}
         <h2>Login Required</h2>
