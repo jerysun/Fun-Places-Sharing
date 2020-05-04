@@ -16,17 +16,20 @@ const UserPlaces = () => {
       try {
         const responseData = await sendRequest(`http://localhost:5000/api/places/user/${userId}`);
         setLoadedPlaces(responseData.places);
-        console.log(`responsedata in UserPlaces: ${responseData.places}`);
       } catch(err) {};
     };
     fetchPlaces();
   }, [sendRequest, userId]);
 
+  const placeDeletedHandler = deletedPlaceId => {
+    setLoadedPlaces(previousPlaces => previousPlaces.filter(p => p.id !== deletedPlaceId));
+  };
+
   return (
     <React.Fragment>
       <ErrorModal error={error} onClear={clearError} />
       {isLoading && (<div className='center'><LoadingSpinner asOverlay /></div>)}
-      {!isLoading && loadedPlaces && <PlaceList items={loadedPlaces} />}
+      {!isLoading && loadedPlaces && <PlaceList items={loadedPlaces} onDeletePlace={placeDeletedHandler} />}
     </React.Fragment>
   );
 };
