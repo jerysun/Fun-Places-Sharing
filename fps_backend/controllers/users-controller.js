@@ -23,8 +23,7 @@ const signup = async(req, res, next) => {
   }
 
   const { name, email, password } = req.body;
-  const image = 'https://i.epochtimes.com/assets/uploads/2020/04/download-48-600x400.jpg';
-  const places = []; // TODO, here is sole a placeholder
+  const places = [];
 
   let existingUser;
   try {
@@ -42,7 +41,7 @@ const signup = async(req, res, next) => {
       name: name,
       email: email,
       password: password,
-      image: image,
+      image: req.file.path,
       places: places
     });
     const result = await createdUser.save();

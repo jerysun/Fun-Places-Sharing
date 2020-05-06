@@ -67,8 +67,6 @@ const Auth = () => {
   const authSubmitHandler = async (event) => {
     event.preventDefault();
 
-    console.log(formState.inputs);
-
     // The default is true at the beginning unless the login is successful, then
     // loginMode becomes false whilst login becomes true by calling auth.login()
     if (isLoginMode) {
@@ -88,16 +86,18 @@ const Auth = () => {
       } catch (err) {}
     } else {
       try {
+        const formData = new FormData();
+        formData.append('name', formState.inputs.name.value);
+        formData.append('email', formState.inputs.email.value);
+        formData.append('password', formState.inputs.password.value);
+        // the file name 'image' must be the same as that used by middleware multer
+        // in backend file users-routers.js: fileUpload.single('image')
+        // the relevant property key of userSchema in model file:
+        // fps_backend\models\user.js is also called image
+        formData.append('image', formState.inputs.image.value);
         const responseData = await sendRequest('http://localhost:5000/api/users/signup',
           'POST',
-          JSON.stringify({
-            name: formState.inputs.name.value,
-            email: formState.inputs.email.value,
-            password: formState.inputs.password.value,
-          }),
-          {
-            'Content-Type': 'application/json',
-          }
+          formData
         );
         auth.login(responseData.user.id); // implemented in app.js
       } catch (err) {}

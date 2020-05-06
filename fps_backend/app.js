@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -9,6 +12,8 @@ const HttpError = require('./models/http-error');
 const app = express();
 
 app.use(bodyParser.json());
+
+app.use('/uploads/images', express.static(path.join('uploads', 'images')));
 
 app.use((req, res, next) => {
   // '*' means we instruct browsers to allow all other sites/domains to access
@@ -40,7 +45,14 @@ app.use((req, res, next) => {
   throw new HttpError('Could not find this route.', 404);
 });
 
+// deal with the errors thrown by those controllers
 app.use((err, req, res, next) => {
+  if (req.file) {
+    fs.unlink(req.file.path, error => {
+      console.error(error);
+    });
+  }
+
   if (res.headerSent) {
     // return next and forward the error which means we won't send a response
     // because we did send a response and we can ONLY send ONE response in total
