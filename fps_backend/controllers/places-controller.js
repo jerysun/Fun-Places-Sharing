@@ -1,3 +1,6 @@
+const fs = require('fs');
+// const process = require('process');
+
 const mongoose = require('mongoose');
 const { validationResult } = require('express-validator');
 
@@ -156,6 +159,7 @@ const deletePlace = async(req, res, next) => {
     return next(new HttpError('Could not find place for the provided id', 404));
   }
 
+  // console.log(`The current dir: ${process.cwd()}`);
   let sess;
   try {
     sess = await mongoose.startSession();
@@ -164,6 +168,12 @@ const deletePlace = async(req, res, next) => {
     place.creator.places.pull(place);// Mongoose converts place to an ObjectId automatically; pull is opposite to push
     await place.creator.save({ session: sess });
     await sess.commitTransaction();
+
+    fs.unlink(place.image, err => {
+      if (err) {
+        console.error(err);
+      }
+    });
     return res.status(200).json({ message: `${placeId} is deleted!` });
   } catch (err) {
     return next(new HttpError('Something went wrong, could not delete place', 500));
