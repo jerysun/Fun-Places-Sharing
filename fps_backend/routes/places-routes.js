@@ -12,6 +12,7 @@ router.get('/user/:uid', getPlacesByUserId);
 
 // placeController is the module name of place-controller.js - a naming convention
 const placeController = require('../controllers/places-controller');
+const fileUpload = require('../middleware/file-upload');
 
 // the '/' is a must to be appended on the '/api/places' in app.js, furthermore
 // if it's a Dynamic Route Segment, then we need append a semicolon :, i.e. '/:'
@@ -19,6 +20,7 @@ router.get('/:pid', placeController.getPlaceById);
 router.get('/user/:uid', placeController.getPlacesByUserId);
 router.post(
   '/',
+  fileUpload.single('image'),
   [
     check('title').not().isEmpty(),
     check('description').isLength({ min: 5 }),

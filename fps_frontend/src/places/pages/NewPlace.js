@@ -5,6 +5,7 @@ import Input from '../../shared/components/FormElements/Input';
 import Button from '../../shared/components/FormElements/Button';
 import ErrorModal from '../../shared/components/UIElements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
+import ImageUpload from '../../shared/components/FormElements/ImageUpload';
 import {
   VALIDATOR_REQUIRE,
   VALIDATOR_MINLENGTH
@@ -21,6 +22,11 @@ const NewPlace = () => {
         // is the value of an one-line Input id
         value: '',
         isValid: false, // whether the individual input is valid
+      },
+      image: {
+        // is the value of Input id in ImageUpload
+        value: null,
+        isValid: false,
       },
       description: {
         // is the value of textarea Input id
@@ -45,18 +51,19 @@ const NewPlace = () => {
     event.preventDefault();
 
     try {
+      const formData = new FormData();
+      formData.append('title', formState.inputs.title.value);
+      formData.append('description', formState.inputs.description.value);
+      formData.append('address', formState.inputs.address.value);
+      formData.append('creator', auth.userId);
+      // the file name 'image' must be the same as that used by middleware multer
+      // in backend
+      formData.append('image', formState.inputs.image.value);
+
       await sendRequest(
         'http://localhost:5000/api/places',
         'POST',
-        JSON.stringify({
-          title: formState.inputs.title.value,
-          description: formState.inputs.description.value,
-          address: formState.inputs.address.value,
-          creator: auth.userId
-        }),
-        {
-          'Content-Type': 'application/json',
-        }
+        formData
       );
       // Redirect the user to a different page
       history.push('/');
@@ -77,6 +84,7 @@ const NewPlace = () => {
           errorText='Please enter a valid title.'
           onInput={inputHandler}
         />
+        {<ImageUpload center id='image' onInput={inputHandler} errorText='Please provide an image.' />}
         <Input
           id='description'
           element='textarea'
