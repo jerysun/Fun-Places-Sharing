@@ -82,7 +82,7 @@ const Auth = () => {
             'Content-Type': 'application/json',
           }
         );
-        auth.login(responseData.user.id); // implemented in app.js
+        auth.login(responseData.userId, responseData.token); // implemented in app.js
       } catch (err) {}
     } else {
       try {
@@ -99,7 +99,7 @@ const Auth = () => {
           'POST',
           formData
         );
-        auth.login(responseData.user.id); // implemented in app.js
+        auth.login(responseData.userId, responseData.token); // implemented in app.js
       } catch (err) {}
     }
   };

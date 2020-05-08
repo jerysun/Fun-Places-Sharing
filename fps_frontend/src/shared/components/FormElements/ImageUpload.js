@@ -20,7 +20,7 @@ const ImageUpload = (props) => {
 
     // convert a binary file to a readable/outputable image
     fileReader.onload = () => {
-      console.log(`fileReader.result: ${fileReader.result}`);
+      // console.log(`fileReader.result: ${fileReader.result}`);
       setPreviewUrl(fileReader.result);
     };
     fileReader.readAsDataURL(file);

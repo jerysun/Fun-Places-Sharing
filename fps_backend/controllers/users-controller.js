@@ -1,7 +1,10 @@
 const { validationResult } = require('express-validator');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const HttpError = require('../models/http-error');
 const User = require('../models/user');
+const Constants = require('../util/Constants');
 
 const getUsers = async(req, res, next) => {
   try {
@@ -19,7 +22,9 @@ const getUsers = async(req, res, next) => {
 const signup = async(req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return next(new HttpError('Invalid inputs passed, please check your data.', 422));
+    return next(
+      new HttpError('Invalid inputs passed, please check your data.', 422)
+    );
   }
 
   const { name, email, password } = req.body;
@@ -28,26 +33,58 @@ const signup = async(req, res, next) => {
   let existingUser;
   try {
     existingUser = await User.findOne({ email: email });
-  } catch(err) {
-    return next(new HttpError('Signing up failed, please try it again later.', 500));
+  } catch (err) {
+    return next(
+      new HttpError('Signing up failed, please try it again later.', 500)
+    );
   }
 
   if (existingUser) {
-    return next(new HttpError('User exists already, please login instead.', 422));
+    return next(
+      new HttpError('User exists already, please login instead.', 422)
+    );
+  }
+
+  let hashedPassword;
+  try {
+    // the 2nd argument is the level how much the strength is, here it means 12
+    // salting rounds
+    hashedPassword = await bcrypt.hash(password, 12);
+  } catch (err) {
+    console.error(err);
+    return next(new HttpError('Could not create user, please try again.', 500));
   }
 
   try {
     const createdUser = new User({
       name: name,
       email: email,
-      password: password,
+      password: hashedPassword,
       image: req.file.path,
-      places: places
+      places: places,
     });
-    const result = await createdUser.save();
-    return res.status(201).json({ user: result.toObject({ getters: true }) });
-  } catch(err) {
-    return next(new HttpError('Signing up failed, please try it again later.', 500));
+    await createdUser.save();
+
+    let token;
+    try {
+      // the 2nd argument secretOrPrivateKey is a string which only the server knows
+      // so which you should never ever share with anyone! Of course it ought to only
+      // stay in your server side code. Certainly you can give it any string you like
+      token = jwt.sign(
+        { userId: createdUser.id, email: createdUser.email },
+        Constants.PRIVATE_KEY,
+        { expiresIn: '1h' } // { expiresIn: '24h' }
+      );
+    } catch (err) {
+      console.error(err);
+      return next(new HttpError('Signing up failed, please try again later.', 500));
+    }
+
+    return res.status(201).json({ userId: createdUser.id, email: createdUser.email, token: token });
+  } catch (err) {
+    return next(
+      new HttpError('Signing up failed, please try it again later.', 500)
+    );
   }
 };
 
@@ -56,10 +93,32 @@ const login = async(req, res, next) => {
 
   try {
     const identifiedUser = await User.findOne({ email: email });
-    if (!identifiedUser || identifiedUser.password !== password) {
-      return next(new HttpError('Could not identify user, credentials seem to be wrong.', 401));
+    if (!identifiedUser) {
+      return next(new HttpError('Invalid credentials, could not log you in.', 401));
     }
-    return res.status(200).json({ message: 'Logged in!', user: identifiedUser.toObject({ getters: true }) });
+
+    try {
+      const isValidPassword = await bcrypt.compare(password, identifiedUser.password);
+      if (!isValidPassword) {
+        return next(new HttpError('Invalid credentials, could not log you in.', 401));
+      }
+    } catch (err) {
+      return next(new HttpError('Could not log you in, please check your credentials and try it again.'), 500);
+    }
+
+    let token;
+    try {
+      token = jwt.sign(
+        { userId: identifiedUser.id, email: identifiedUser.email },
+        Constants.PRIVATE_KEY,
+        { expiresIn: '1h' } // { expiresIn: '24h' }
+      );
+    } catch (err) {
+      console.error(err);
+      return next(new HttpError('Logging in failed, please try again later.', 500));
+    }
+
+    return res.status(200).json({ userId: identifiedUser.id, email: identifiedUser.email, token: token });
   } catch(err) {
     return next(new HttpError('Something went wrong, please try it again later.', 401));
   }
