@@ -125,6 +125,16 @@ const updatePlace = async(req, res, next) => {
   const { title, description } = req.body;
   const placeId = req.params.pid;
 
+  try {
+    const userId = req.userData.userId;
+    const place = await Place.findById(placeId);
+    if (!place || userId !== place.creator.toString()) { // mongoose id object to a string
+      throw new Error('Token failed.');
+    }
+  } catch (err) {
+    return next(new HttpError('You are not allowed to edit this place', 401));
+  }
+
   await Place.findByIdAndUpdate(
     placeId, {
       title: title,
@@ -143,6 +153,16 @@ const updatePlace = async(req, res, next) => {
 
 const deletePlace = async(req, res, next) => {
   const placeId = req.params.pid;
+
+  try {
+    const userId = req.userData.userId;
+    const place = await Place.findById(placeId);
+    if (!place || place.creator.toString() !== userId) {
+      throw new Error('Token failed!');
+    }
+  } catch(err) {
+    return next(new HttpError('You are not allowed to delete this place.', 401));
+  }
 
   let place;
   try {

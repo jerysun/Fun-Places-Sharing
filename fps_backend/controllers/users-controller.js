@@ -94,13 +94,13 @@ const login = async(req, res, next) => {
   try {
     const identifiedUser = await User.findOne({ email: email });
     if (!identifiedUser) {
-      return next(new HttpError('Invalid credentials, could not log you in.', 401));
+      return next(new HttpError('Invalid credentials, could not log you in.', 403));
     }
 
     try {
       const isValidPassword = await bcrypt.compare(password, identifiedUser.password);
       if (!isValidPassword) {
-        return next(new HttpError('Invalid credentials, could not log you in.', 401));
+        return next(new HttpError('Invalid credentials, could not log you in.', 403));
       }
     } catch (err) {
       return next(new HttpError('Could not log you in, please check your credentials and try it again.'), 500);

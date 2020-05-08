@@ -4,6 +4,7 @@ import UsersList from '../components/UsersList';
 import ErrorModal from '../../shared/components/UIElements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 import { useHttpClient } from '../../shared/hooks/http-hook';
+import Constants from '../../shared/util/Constants';
 
 const Users = () => {
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
@@ -21,7 +22,7 @@ const Users = () => {
     // NO async() => {} here. But we can have a trick - use it inside
     const fetchUsers = async () => {
       try {
-        const responseData = await sendRequest('http://localhost:5000/api/users');
+        const responseData = await sendRequest(`${Constants.HOME_URL}api/users`);
         setLoadedUsers(responseData.users);
       } catch (err) {}
     };

@@ -13,6 +13,7 @@ import {
 import { useForm } from '../../shared/hooks/form-hook';
 import { useHttpClient } from '../../shared/hooks/http-hook';
 import { AuthContext } from '../../shared/context/auth-context';
+import Constants from '../../shared/util/Constants';
 import './PlaceForm.css';
 
 const NewPlace = () => {
@@ -61,7 +62,7 @@ const NewPlace = () => {
       formData.append('image', formState.inputs.image.value);
 
       await sendRequest(
-        'http://localhost:5000/api/places',
+        `${Constants.HOME_URL}api/places`,
         'POST',
         formData,
         {
