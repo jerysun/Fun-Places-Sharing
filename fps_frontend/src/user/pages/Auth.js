@@ -83,7 +83,7 @@ const Auth = () => {
             'Content-Type': 'application/json',
           }
         );
-        auth.login(responseData.userId, responseData.token); // implemented in app.js
+        auth.login(responseData.userId, responseData.token); // implemented in auth-hook.js
       } catch (err) {}
     } else {
       try {
@@ -100,7 +100,7 @@ const Auth = () => {
           'POST',
           formData
         );
-        auth.login(responseData.userId, responseData.token); // implemented in app.js
+        auth.login(responseData.userId, responseData.token); // implemented in auth-hook.js
       } catch (err) {}
     }
   };

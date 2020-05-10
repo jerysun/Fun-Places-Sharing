@@ -56,7 +56,6 @@ const NewPlace = () => {
       formData.append('title', formState.inputs.title.value);
       formData.append('description', formState.inputs.description.value);
       formData.append('address', formState.inputs.address.value);
-      formData.append('creator', auth.userId);
       // the file name 'image' must be the same as that used by middleware multer
       // in backend
       formData.append('image', formState.inputs.image.value);
