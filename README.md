@@ -11,6 +11,7 @@ Fun Places Sharing aiming to make a social hub to let people introduce to each o
 - Functional programming plus hooks
 - ODM Mongoose
 - Use bcryptjs and JWT for Authentication
+- Auto log in and log out based on the expiration of JWT token
 
 Have fun,
 

@@ -73,7 +73,7 @@ const signup = async(req, res, next) => {
       token = jwt.sign(
         { userId: createdUser.id, email: createdUser.email },
         Constants.PRIVATE_KEY,
-        { expiresIn: '1h' } // { expiresIn: '24h' }
+        { expiresIn: Constants.EXPIRATION }
       );
     } catch (err) {
       console.error(err);
@@ -111,7 +111,7 @@ const login = async(req, res, next) => {
       token = jwt.sign(
         { userId: identifiedUser.id, email: identifiedUser.email },
         Constants.PRIVATE_KEY,
-        { expiresIn: '1h' } // { expiresIn: '24h' }
+        { expiresIn: Constants.EXPIRATION }
       );
     } catch (err) {
       console.error(err);
