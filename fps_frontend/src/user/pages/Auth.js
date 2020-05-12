@@ -14,7 +14,6 @@ import {
 import { useForm } from '../../shared/hooks/form-hook';
 import { useHttpClient } from '../../shared/hooks/http-hook';
 import { AuthContext } from '../../shared/context/auth-context';
-import Constants from '../../shared/util/Constants';
 import './Auth.css';
 
 const Auth = () => {
@@ -73,7 +72,7 @@ const Auth = () => {
     if (isLoginMode) {
       try {
         const responseData = await sendRequest(
-          `${Constants.HOME_URL}api/users/login`,
+          `${process.env.REACT_APP_BACKEND_URL}/users/login`,
           'POST',
           JSON.stringify({
             email: formState.inputs.email.value,
@@ -96,7 +95,7 @@ const Auth = () => {
         // the relevant property key of userSchema in model file:
         // fps_backend\models\user.js is also called image
         formData.append('image', formState.inputs.image.value);
-        const responseData = await sendRequest(`${Constants.HOME_URL}api/users/signup`,
+        const responseData = await sendRequest(`${process.env.REACT_APP_BACKEND_URL}/users/signup`,
           'POST',
           formData
         );

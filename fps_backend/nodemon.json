@@ -1,0 +1,8 @@
+{
+  "env": {
+    "DB_USER": "jerry",
+    "DB_PASSWORD": "kgXYke6a1tR6vFzH",
+    "DB_NAME": "funplaces",
+    "GOOGLE_API_KEY": "AIzaSyBnie9djsgGBSCpYlJ47D1p5HyiwwoxdkY"
+  }
+}

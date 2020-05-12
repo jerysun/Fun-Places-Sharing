@@ -13,7 +13,6 @@ import ErrorModal from '../../shared/components/UIElements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 import { useHttpClient } from '../../shared/hooks/http-hook';
 import { AuthContext } from '../../shared/context/auth-context';
-import Constants from '../../shared/util/Constants';
 import './PlaceForm.css';
 
 const UpdatePlace = () => {
@@ -37,7 +36,7 @@ const UpdatePlace = () => {
   // Get the place for updating later on
   useEffect(() => {
     const fetchPlace = async() => {
-      const sentUrl = `${Constants.HOME_URL}api/places/${placeId}`;
+      const sentUrl = `${process.env.REACT_APP_BACKEND_URL}/places/${placeId}`;
       console.log(`sentUrl: ${sentUrl}`);
       try {
         const responseData = await sendRequest(sentUrl);
@@ -67,7 +66,7 @@ const UpdatePlace = () => {
 
     try {
       await sendRequest(
-        `${Constants.HOME_URL}api/places/${placeId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/places/${placeId}`,
         'PATCH',
         JSON.stringify({
           title: formState.inputs.title.value,

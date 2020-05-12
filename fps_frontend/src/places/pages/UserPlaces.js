@@ -5,7 +5,6 @@ import PlaceList from '../components/PlaceList';
 import ErrorModal from '../../shared/components/UIElements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 import { useHttpClient } from '../../shared/hooks/http-hook';
-import Constants from '../../shared/util/Constants';
 
 const UserPlaces = () => {
   const userId = useParams().userId;
@@ -15,7 +14,7 @@ const UserPlaces = () => {
   useEffect(() => {
     const fetchPlaces = async () => {
       try {
-        const responseData = await sendRequest(`${Constants.HOME_URL}api/places/user/${userId}`);
+        const responseData = await sendRequest(`${process.env.REACT_APP_BACKEND_URL}/places/user/${userId}`);
         setLoadedPlaces(responseData.places);
       } catch(err) {};
     };
