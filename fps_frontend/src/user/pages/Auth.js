@@ -42,7 +42,8 @@ const Auth = () => {
       setFormData( // To become the Login mode, need to do:
         {
           ...formState.inputs,
-          name: undefined
+          name: undefined,
+          image: undefined
         },
         formState.inputs.email.isValid && formState.inputs.password.isValid
       );
@@ -123,7 +124,7 @@ const Auth = () => {
               onInput={inputHandler}
             />
           )}
-          {!isLoginMode && <ImageUpload center id='image' onInput={inputHandler} errorText='Please provide an image.' />}
+          {!isLoginMode && (<ImageUpload center id='image' onInput={inputHandler} errorText='Please provide an image.' />)}
           <Input
             element='input'
             id='email'

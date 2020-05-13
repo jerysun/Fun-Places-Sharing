@@ -52,7 +52,6 @@ const ImageUpload = (props) => {
   };
 
   return (
-    // JSX markup
     <div className='form-control'>
       <input
         id={props.id}
