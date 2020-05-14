@@ -10,9 +10,6 @@ const getUsers = async(req, res, next) => {
   try {
     // return all properties but password - exclude it!
     const users = await User.find({}, '-password');
-    if (users.length === 0) {
-      return new HttpError('There is no user yet.', 202);
-    }
     return res.status(200).json({ users: users.map(u => u.toObject({ getters: true })) });
   } catch (error) {
     return next(new HttpError('Something went wrong, please try it again later.', 500));
